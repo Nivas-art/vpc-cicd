@@ -2,9 +2,9 @@ pipeline{
     agent {
         label 'AGENT-1'
     }
-    environment{
-          Deploy_to = Production
-    }
+    // environment{
+    //       Deploy_to = Production
+    // }
     options{
         timeout(time: 30, unit: 'minutes')  
         ansiColor('xterm')
