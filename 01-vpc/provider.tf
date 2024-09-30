@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "terraform-vpc-bktt"
-    key    = "expense-aws-sg-alb"
+    key    = "expense-jenkins"
     region = "us-east-1"
     dynamodb_table = "terraform-vpc-tablee"
   }
