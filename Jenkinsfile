@@ -1,68 +1,79 @@
-pipeline{
+pipeline {
     agent {
         label 'AGENT-1'
     }
-    // environment{
-    //       Deploy_to = Production
-    // }
-    options{
-        timeout(time: 30, unit: 'minutes')  
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
         ansiColor('xterm')
-        disableConcurrentBuilds()   
     }
     parameters {
-        choice(name: 'choose', choices: ['apply', 'destroy'], description: 'Pick somethingg')
+        choice(name: 'action', choices: ['Apply', 'Destroy'], description: 'Pick something')
     }
-
     stages {
-        stage {
-            steps('init'){
-                sh """
-                  cd vpc-cicd
-                  terraform init
-                """
+        stage('Init') {
+            steps {
+               sh """
+                cd 01-vpc
+                terraform init -reconfigure
+               """
             }
         }
-        stage {
-            steps('paln'){
-                when{
-                    expression{
-                        params.action == 'apply'
-                    }
+        stage('Plan') {
+            when {
+                expression{
+                    params.action == 'Apply'
                 }
+            }
+            steps {
                 sh """
-                  cd vpc-cicd
-                  terraform plan
+                cd 01-vpc
+                terraform plan
                 """
             }
         }
-        stage {
-            steps('apply'){
-                when{
-                    expression{
-                        params.action == 'apply'
-                    }
+        stage('Deploy') {
+            when {
+                expression{
+                    params.action == 'Apply'
                 }
+            }
+            input {
+                message "Should we continue?"
+                ok "Yes, we should."
+            }
+            steps {
                 sh """
-                  cd vpc-cicd
-                  terraform apply -auto-approve
+                cd 01-vpc
+                terraform apply -auto-approve
                 """
             }
         }
-        stage {
-            steps('destroy'){
-                sh """
-                  cd vpc-cicd
-                  terraform destroy -auto-approve
-                """
-            }
-        }
-    }
-    post{
-        always{
-            echo "i will always say hello"
-             deleteDir()
-        }
-    }
 
+        stage('Destroy') {
+            when {
+                expression{
+                    params.action == 'Destroy'
+                }
+            }
+            steps {
+                sh """
+                cd 01-vpc
+                terraform destroy -auto-approve
+                """
+            }
+        }
+    }
+    post { 
+        always { 
+            echo 'I will always say Hello again!'
+            deleteDir()
+        }
+        success { 
+            echo 'I will run when pipeline is success'
+        }
+        failure { 
+            echo 'I will run when pipeline is failure'
+        }
+    }
 }
