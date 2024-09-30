@@ -14,44 +14,44 @@ pipeline{
         choice(name: 'choose', choices: ['apply', 'destroy'], description: 'Pick somethingg')
     }
 
-    stages{
-        stage{
+    stages {
+        stage {
             steps('init'){
-                sh"""
+                sh """
                   cd vpc-cicd
                   terraform init
                 """
             }
         }
-        stage{
+        stage {
             steps('paln'){
                 when{
                     expression{
                         params.action == 'apply'
                     }
                 }
-                sh"""
+                sh """
                   cd vpc-cicd
                   terraform plan
                 """
             }
         }
-        stage{
+        stage {
             steps('apply'){
                 when{
                     expression{
                         params.action == 'apply'
                     }
                 }
-                sh"""
+                sh """
                   cd vpc-cicd
                   terraform apply -auto-approve
                 """
             }
         }
-        stage{
+        stage {
             steps('destroy'){
-                sh"""
+                sh """
                   cd vpc-cicd
                   terraform destroy -auto-approve
                 """
